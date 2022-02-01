@@ -7,6 +7,10 @@ import pe.PeColumn;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * @author 尹硕
+ */
+
 public class PeArrayMap {
     private static int SIZE = 32;
     public static int PESUBARRAY_SIZE = 4;

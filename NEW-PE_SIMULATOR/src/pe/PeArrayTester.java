@@ -1,13 +1,16 @@
 package pe;
 
 import elements.Answer;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class PeArrayTester {
     private static final int SIZE = 4;
     private static PeArray peArray = new PeArray(0, 4);
     private static Answer answer = new Answer();
+    private static HashSet<LabelTuple> set = new HashSet<>();
 
     public static void main(String[] args) {
         int[][] stramingData = {{2, 2, 1, 5},

@@ -3,6 +3,7 @@ package elements;
 import pe.LabelTuple;
 
 import java.util.ArrayList;
+import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -68,6 +69,19 @@ public class Answer {
         }
         return result;
 
+    }
+
+    public boolean isCorrect(Set<LabelTuple> set) {
+        if (set.size() != answer.size()) {
+            return false;
+        }
+        for (LabelTuple labelTuple : set) {
+            if (!answer.contains(labelTuple)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
