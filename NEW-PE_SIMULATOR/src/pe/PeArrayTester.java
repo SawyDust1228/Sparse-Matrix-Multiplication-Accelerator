@@ -1,11 +1,10 @@
-import pe.PSBuffer;
-import pe.PeArray;
-import pe.PeColumn;
+package pe;
 
+import elements.Answer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Main {
+public class PeArrayTester {
     private static final int SIZE = 4;
     private static PeArray peArray = new PeArray(0, 4);
     private static Answer answer = new Answer();

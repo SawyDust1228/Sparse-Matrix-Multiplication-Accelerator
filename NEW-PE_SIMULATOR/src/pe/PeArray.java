@@ -16,6 +16,7 @@ public class PeArray {
     private Queue<ArrayList<Integer>> steamingData = new LinkedList<>();
     private Boolean[] needStall; // which column need stall
     private boolean stallFlag = false; // do we need to stall the PE
+    private boolean FINISH = false;
 
     public PeArray(int id, int size) {
         assert size >= 2;
@@ -104,6 +105,9 @@ public class PeArray {
     }
 
     public void compute() {
+        if(FINISH){
+            return;
+        }
         stallFlag = false;
         Arrays.fill(needStall, false);
         for (int i = 0; i < size; i++) {
@@ -211,5 +215,11 @@ public class PeArray {
         return result;
     }
 
+    public boolean isFINISH() {
+        return FINISH;
+    }
 
+    public void setFINISH(boolean FINISH) {
+        this.FINISH = FINISH;
+    }
 }
