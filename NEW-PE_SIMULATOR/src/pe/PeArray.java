@@ -105,7 +105,7 @@ public class PeArray {
     }
 
     public void compute() {
-        if(FINISH){
+        if (FINISH) {
             return;
         }
         stallFlag = false;
@@ -221,5 +221,9 @@ public class PeArray {
 
     public void setFINISH(boolean FINISH) {
         this.FINISH = FINISH;
+    }
+
+    public int getSize() {
+        return size;
     }
 }
