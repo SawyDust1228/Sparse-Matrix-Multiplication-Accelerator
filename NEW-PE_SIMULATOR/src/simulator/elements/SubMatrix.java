@@ -1,4 +1,5 @@
 package simulator.elements;
+
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -39,7 +40,7 @@ public class SubMatrix {
             int[][] sub = new int[n][SIZE];
             for (int j = k * SIZE; j < (k + 1) * SIZE; j++) {
                 for (int i = 0; i < n; i++) {
-                    sub[i][j] = temp[i][j];
+                    sub[i][j - k * SIZE] = temp[i][j];
                 }
             }
             result.put(k, sub);
@@ -71,7 +72,7 @@ public class SubMatrix {
             int[][] sub = new int[SIZE][m];
             for (int i = k * SIZE; i < (k + 1) * SIZE; i++) {
                 for (int j = 0; j < m; j++) {
-                    sub[i][j] = temp[i][j];
+                    sub[i - k * SIZE][j] = temp[i][j];
                 }
             }
             HashMap<Integer, int[][]> map = divideStreamingMatrix(sub);

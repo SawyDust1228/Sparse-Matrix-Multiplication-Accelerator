@@ -1,7 +1,11 @@
 package simulator.elements;
 
-import pe.PeArray;
+import pe.SubPeArray;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -9,7 +13,7 @@ import java.util.*;
  */
 public class MatrixMapper {
     private static int[][] DIRECTION = {{1, 0}, {0, 1}};
-    private HashMap<Integer, HashMap<Integer, PeArray>> peSubArrays;
+    private HashMap<Integer, HashMap<Integer, SubPeArray>> peSubArrays;
     private HashMap<Integer, SubMatrix> subMatrixMap = new HashMap<>();
     private int PE_SIZE;
     private int SIZE;
@@ -33,7 +37,7 @@ public class MatrixMapper {
         }
     }
 
-    public void setPeSubArrays(HashMap<Integer, HashMap<Integer, PeArray>> peSubArrays) {
+    public void setPeSubArrays(HashMap<Integer, HashMap<Integer, SubPeArray>> peSubArrays) {
         this.peSubArrays = peSubArrays;
     }
 
@@ -55,19 +59,40 @@ public class MatrixMapper {
             Boolean flag = false;
             for (int i = 0; i < SIZE; i++) {
                 for (int j = 0; j < SIZE; j++) {
-                    if (idMap[i][j] != -1) {
+                    if (idMap[i][j] == -1) {
                         if (BFS(i, j, id)) {
                             mapping(i, j, id);
                             flag = true;
+                            break;
                         }
                     }
                 }
+                if (flag) {
+                    break;
+                }
             }
             if (!flag) {
-                throw new Exception("No, we can't map all this Matrix");
+//                writeLog();
+                throw new Exception("No, we can't map all those Matrices");
             }
         }
+        writeLog();
+    }
 
+    private void writeLog() throws Exception {
+        try {
+            File file = new File("src/simulator/logs/log");
+            FileWriter out = new FileWriter(file);
+            for (int i = 0; i < SIZE; i++) {
+                for (int j = 0; j < SIZE; j++) {
+                    out.write("(" + idMap[i][j] + " ," + streamIdMap[i][j] + ")" + "\t");
+                }
+                out.write('\n');
+            }
+            out.close();
+        } catch (IOException e) {
+            throw new Exception("No, we can't write log");
+        }
     }
 
     private void mapping(int x, int y, int id) {
@@ -96,20 +121,23 @@ public class MatrixMapper {
             for (int j = 0; j < SIZE; j++) {
                 if (idMap[i][j] != -1) {
                     temp[i][j] = true;
+                } else {
+                    temp[i][j] = false;
                 }
             }
         }
         queue.add(new int[]{x, y});
         temp[x][y] = true;
+        int[] start = new int[]{x, y};
         while (!queue.isEmpty()) {
             int[] node = queue.poll();
             if (node[0] == destination[0] && node[1] == destination[1]) {
                 return true;
             }
             for (int[] dirc : DIRECTION) {
-                int x_new = x + dirc[0];
-                int y_new = y + dirc[1];
-                if (!outOfIndex(x_new, y_new, destination)) {
+                int x_new = node[0] + dirc[0];
+                int y_new = node[1] + dirc[1];
+                if (!outOfIndex(x_new, y_new, start, destination)) {
                     // do nothing
                     continue;
                 } else {
@@ -128,8 +156,8 @@ public class MatrixMapper {
         return false;
     }
 
-    private boolean outOfIndex(int x, int y, int[] bounds) {
-        return x >= 0 && x <= bounds[0] && y >= 0 && y <= bounds[1];
+    private boolean outOfIndex(int x, int y, int[] start, int[] bounds) {
+        return x >= start[0] && x <= bounds[0] && y >= start[1] && y <= bounds[1];
     }
 
     private boolean outOfIndex(int x, int y) {
@@ -138,15 +166,15 @@ public class MatrixMapper {
 
 
     private void loadStationaryMatrix(int x, int y, int[][] stationaryData) {
-        PeArray peArray = peSubArrays.get(x).get(y);
+        SubPeArray subPeArray = peSubArrays.get(x).get(y);
         stationaryData = transpose(stationaryData);
-        peArray.setStationaryLabels(arrayToArrayList(stationaryData));
+        subPeArray.setStationaryLabels(arrayToArrayList(stationaryData));
     }
 
 
     private void loadStreamingMatrix(int x, int y, int[][] streamingData) {
-        PeArray peArray = peSubArrays.get(x).get(y);
-        peArray.setSteamingLabels(arrayToArrayList(streamingData));
+        SubPeArray subPeArray = peSubArrays.get(x).get(y);
+        subPeArray.setSteamingLabels(arrayToArrayList(streamingData));
     }
 
 

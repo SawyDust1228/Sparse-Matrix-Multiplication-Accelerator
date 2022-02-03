@@ -11,7 +11,7 @@ import java.util.HashSet;
 
 public class PeArrayTester {
     private static final int SIZE = 4;
-    private static PeArray peArray = new PeArray(0, 4);
+    private static SubPeArray subPeArray = new SubPeArray(0, 4);
     private static Answer answer = new Answer();
     private static HashSet<LabelTuple> set = new HashSet<>();
 
@@ -28,21 +28,22 @@ public class PeArrayTester {
         answer.addLabels(stationaryData, stramingData);
 
         stationaryData = transpose(stationaryData);
-        peArray.setStationaryLabels(arrayToArrayList(stationaryData));
-        peArray.setSteamingLabels(arrayToArrayList(stramingData));
+        subPeArray.setStationaryLabels(arrayToArrayList(stationaryData));
+        subPeArray.setSteamingLabels(arrayToArrayList(stramingData));
 
         for (int count = 1; count <= 20; count++) {
             System.out.println("we are in cycle " + count);
             System.out.println("********************************************");
-            if (peArray.isFinish()) {
+            if (subPeArray.isFinish() && !subPeArray.isFINISH()) {
+                subPeArray.setFINISH(true);
                 System.out.println("Simulation finish!!!!!!!!!!");
                 System.out.println("********************************************");
-                break;
+//                break;
             }
-            peArray.compute();
-            System.out.println("Stall: " + peArray.getNeedStall());
-            HashMap<Integer, PeColumn> peColumnHashMap = peArray.getPeColumnHashMap();
-            HashMap<Integer, PSBuffer> psBufferHashMap = peArray.getPsBufferHashMap();
+            subPeArray.compute();
+            System.out.println("Stall: " + subPeArray.getNeedStall());
+            HashMap<Integer, PeColumn> peColumnHashMap = subPeArray.getPeColumnHashMap();
+            HashMap<Integer, PSBuffer> psBufferHashMap = subPeArray.getPsBufferHashMap();
             for (int i = 0; i < SIZE; i++) {
                 System.out.println("same cyle fifo " + i + " is " + peColumnHashMap.get(i).getSameCyeleMerger().getFifo());
             }
@@ -53,7 +54,8 @@ public class PeArrayTester {
             for (int i = 0; i < SIZE; i++) {
                 System.out.println("PS buffer " + i + " is " + psBufferHashMap.get(i).getBuffer());
             }
-            System.out.println("total fifo is " + peArray.getFifo());
+            System.out.println("total fifo is " + subPeArray.getFifo());
+            System.out.println("Is finish ? " + ((subPeArray.isFINISH())? "Yes!!!!!!!!!!!!" : "No"));
             System.out.println("********************************************");
         }
 

@@ -1,7 +1,8 @@
 package simulator;
 
-import pe.PeArray;
+import pe.SubPeArray;
 import simulator.elements.MatrixMapper;
+import utils.DataLoader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,26 +15,36 @@ public class PeArrayMap {
     private static int SIZE = 32;
     private static int PESUBARRAY_SIZE = 4;
     private static int COUNTER = 1;
-    private HashMap<Integer, HashMap<Integer, PeArray>> peSubArrays;
+    private static String PATH = "packing-algorithm/data";
+    private HashMap<Integer, HashMap<Integer, SubPeArray>> subPeArrays;
     private HashMap<Integer, Boolean> finishMap;
     private HashMap<Integer, Integer> stallCounter = new HashMap<>();
     private MatrixMapper matrixMapper;
+    private DataLoader dataLoader;
 
     public PeArrayMap() {
-        peSubArrays = new HashMap<>();
+        subPeArrays = new HashMap<>();
         finishMap = new HashMap<>();
         matrixMapper = new MatrixMapper(PESUBARRAY_SIZE, SIZE);
+        dataLoader = new DataLoader(PATH, SIZE);
         for (int i = 0; i < SIZE; i++) {
-            peSubArrays.put(i, new HashMap<>());
+            subPeArrays.put(i, new HashMap<>());
             for (int j = 0; j < SIZE; j++) {
                 int id = getRealIndex(i, j);
-                PeArray peArray = new PeArray(id, PESUBARRAY_SIZE);
-                peSubArrays.get(i).put(j, peArray);
+                SubPeArray subPeArray = new SubPeArray(id, PESUBARRAY_SIZE);
+                subPeArrays.get(i).put(j, subPeArray);
                 finishMap.put(id, false);
                 stallCounter.put(id, 0);
             }
         }
-        matrixMapper.setPeSubArrays(peSubArrays);
+        matrixMapper.setPeSubArrays(subPeArrays);
+    }
+
+    public void readAndMap() throws Exception {
+        HashMap<Integer, HashMap<Integer, int[][]>> stationaryMatrixMap = dataLoader.readSTPUStationaryData();
+        HashMap<Integer, int[][]> streamingMatrixMap = dataLoader.readSTPUStreamingData();
+        mapPeArrays(stationaryMatrixMap, streamingMatrixMap);
+        renewFinish();
     }
 
     private void mapPeArrays(HashMap<Integer, HashMap<Integer, int[][]>> stationaryMatrixMap,
@@ -42,7 +53,7 @@ public class PeArrayMap {
         matrixMapper.mapping();
     }
 
-    public void renewFinish() {
+    private void renewFinish() {
         int[][] idMap = matrixMapper.getIdMap();
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
@@ -67,9 +78,9 @@ public class PeArrayMap {
     }
 
     private void compute(int x, int y) {
-        PeArray peArray = peSubArrays.get(x).get(y);
-        peArray.compute();
-        ArrayList<Boolean> stall = peArray.getNeedStall();
+        SubPeArray subPeArray = subPeArrays.get(x).get(y);
+        subPeArray.compute();
+        ArrayList<Boolean> stall = subPeArray.getNeedStall();
         int flag = 0;
         for (Boolean item : stall) {
             if (item) {
@@ -78,9 +89,9 @@ public class PeArrayMap {
             }
         }
         stallCounter.put(getRealIndex(x, y), stallCounter.get(getRealIndex(x, y) + flag));
-        if (peArray.isFinish()) {
-            System.out.println("Simulator: " + getRealIndex(x, y) + " finish!!!!!!!!!!");
-            peArray.setFINISH(true);
+        if (subPeArray.isFinish()) {
+            System.out.println("Simulator id: " + getRealIndex(x, y) + " finish!!!!!!!!!!");
+            subPeArray.setFINISH(true);
             finishMap.put(getRealIndex(x, y), true);
         }
     }
@@ -89,7 +100,7 @@ public class PeArrayMap {
         boolean finish = true;
         for (Integer key : finishMap.keySet()) {
             if (!finishMap.get(key)) {
-                finish = false;
+                return false;
             }
         }
         return finish;
