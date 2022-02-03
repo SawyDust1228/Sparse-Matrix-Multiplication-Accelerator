@@ -1,6 +1,9 @@
 package pe;
 
-import elements.Answer;
+import utils.Answer;
+import pe.elements.LabelTuple;
+import pe.elements.PSBuffer;
+import pe.elements.PeColumn;
 
 import java.util.ArrayList;
 import java.util.HashMap;
