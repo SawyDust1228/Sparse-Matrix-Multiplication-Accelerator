@@ -14,11 +14,11 @@ public class MatrixReader {
     }
 
     public void setFilePathFoldName(String foldName) {
-        this.filePath += "\\" + foldName;
+        this.filePath += "/" + foldName;
     }
 
     public int[][] read(String filename) throws IOException {
-        String name = filePath + "\\" + filename + ".txt";
+        String name = filePath + "/" + filename;
         ArrayList<ArrayList<Integer>> matrix = new ArrayList<>();
         FileInputStream fileInputStream = new FileInputStream(name);
         InputStreamReader reader = new InputStreamReader(fileInputStream);
