@@ -1,4 +1,4 @@
-package simulator;
+package simulator.elements;
 
 import pe.PeArray;
 
@@ -13,9 +13,12 @@ public class MatrixMapper {
     private HashMap<Integer, SubMatrix> subMatrixMap = new HashMap<>();
     private int PE_SIZE;
     private int SIZE;
-    private int[][] idMap; // sumMatrix id and subPeArrays
-    private int[][] streamIdMap;    // streaming id and subPeArrays
-    private int[][] stationaryIdMap; // stationary id and subPeArrays
+    // sumMatrix id and subPeArrays
+    private int[][] idMap;
+    // streaming id and subPeArrays
+    private int[][] streamIdMap;
+    // stationary id and subPeArrays
+    private int[][] stationaryIdMap;
 
     public MatrixMapper(int PE_SIZE, int SIZE) {
         this.PE_SIZE = PE_SIZE;
@@ -35,19 +38,19 @@ public class MatrixMapper {
     }
 
     public void setSubMatrixMap(HashMap<Integer, HashMap<Integer, int[][]>> stationaryMatrixMap,
-                                HashMap<Integer, int[][]> stremingMatrixMap) {
+                                HashMap<Integer, int[][]> streamingMatrixMap) {
         int id = 0;
         for (Integer level : stationaryMatrixMap.keySet()) {
             for (Integer key : stationaryMatrixMap.get(level).keySet()) {
                 SubMatrix subMatrix = new SubMatrix(id, PE_SIZE,
-                        stationaryMatrixMap.get(level).get(key), stremingMatrixMap.get(level));
+                        stationaryMatrixMap.get(level).get(key), streamingMatrixMap.get(level));
                 subMatrixMap.put(id, subMatrix);
                 id += 1;
             }
         }
     }
 
-    private void mapping() throws Exception {
+    public void mapping() throws Exception {
         for (Integer id : subMatrixMap.keySet()) {
             Boolean flag = false;
             for (int i = 0; i < SIZE; i++) {
@@ -141,7 +144,7 @@ public class MatrixMapper {
     }
 
 
-    public void loadStreamingMatrix(int x, int y, int[][] streamingData) {
+    private void loadStreamingMatrix(int x, int y, int[][] streamingData) {
         PeArray peArray = peSubArrays.get(x).get(y);
         peArray.setSteamingLabels(arrayToArrayList(streamingData));
     }
@@ -173,5 +176,8 @@ public class MatrixMapper {
         return PE_SIZE;
     }
 
+    public int[][] getIdMap() {
+        return idMap;
+    }
 
 }
