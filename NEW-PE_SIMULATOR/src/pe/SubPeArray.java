@@ -17,10 +17,13 @@ public class SubPeArray {
     private int[][] drainToWhere;
     private Queue<LabelTuple> fifo;
     private LimitedQueue<ArrayList<Integer>> stream;
-    private Queue<ArrayList<Integer>> steamingData = new LinkedList<>();
+    private Queue<ArrayList<Integer>> streamingData = new LinkedList<>();
     private Boolean[] needStall; // which column need stall
     private boolean stallFlag = false; // do we need to stall the PE
     private boolean FINISH = false;
+    private ArrayList<ArrayList<Integer>> stationaryDataList = new ArrayList<>();
+    private ArrayList<ArrayList<Integer>> streamingDataList = new ArrayList<>();
+//    private boolean NONE = false; // ji duan qing kaung, wu Label chan sheng;
 
     public SubPeArray(int id, int size) {
         assert size >= 2;
@@ -34,8 +37,9 @@ public class SubPeArray {
     }
 
     public void setSteamingLabels(ArrayList<ArrayList<Integer>> data) {
+        this.streamingDataList.addAll(data);
         for (ArrayList<Integer> line : data) {
-            steamingData.add(line);
+            streamingData.add(line);
         }
         streamInStreamingData();
     }
@@ -46,8 +50,8 @@ public class SubPeArray {
             return;
         }
         ArrayList<Integer> d;
-        if (!steamingData.isEmpty()) {
-            d = steamingData.poll();
+        if (!streamingData.isEmpty()) {
+            d = streamingData.poll();
         } else {
             d = new ArrayList<>(Collections.nCopies(size, -1));
         }
@@ -72,6 +76,7 @@ public class SubPeArray {
 
     public void setStationaryLabels(ArrayList<ArrayList<Integer>> stationaryLabels) {
         assert stationaryLabels.size() == size;
+        this.stationaryDataList.addAll(stationaryLabels);
         for (int i = 0; i < size; i++) {
             peColumnHashMap.get(i).setLabels(stationaryLabels.get(i));
             peColumnHashMap.get(i).findConnection();
@@ -157,6 +162,10 @@ public class SubPeArray {
         return index != -1;
     }
 
+    private boolean finishStream() {
+        return isEmpty() && streamingData.isEmpty();
+    }
+
     private boolean isEmpty() {
         boolean result = true;
         for (int i = 0; i < size; i++) {
@@ -178,7 +187,9 @@ public class SubPeArray {
         for (int i = 0; i < size; i++) {
             flag = flag || !psBufferHashMap.get(i).isBufferEmpty();
         }
-        return result && flag && isEmpty();
+        boolean drainFlag = !getFifo().isEmpty();
+
+        return (result && !flag && !drainFlag && finishStream()) || (result && (flag || drainFlag) && finishStream());
     }
 
     private void build() {
@@ -229,5 +240,13 @@ public class SubPeArray {
 
     public int getSize() {
         return size;
+    }
+
+    public ArrayList<ArrayList<Integer>> getStationaryDataList() {
+        return stationaryDataList;
+    }
+
+    public ArrayList<ArrayList<Integer>> getStreamingDataList() {
+        return streamingDataList;
     }
 }

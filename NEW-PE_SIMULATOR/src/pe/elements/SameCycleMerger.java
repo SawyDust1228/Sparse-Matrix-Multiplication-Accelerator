@@ -15,7 +15,8 @@ public class SameCycleMerger {
     private boolean needStall = false;
 
     public SameCycleMerger(int size) {
-        this.size = size;
+        // we can change fifo size here
+        this.size = 2 * size;
     }
 
     private ArrayList<LabelTuple> merge(ArrayList<LabelTuple> labelTuples) {

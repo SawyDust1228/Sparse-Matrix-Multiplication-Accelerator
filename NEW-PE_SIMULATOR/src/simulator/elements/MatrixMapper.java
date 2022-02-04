@@ -104,8 +104,8 @@ public class MatrixMapper {
                 this.idMap[i][j] = id;
                 this.streamIdMap[i][j] = i - x;
                 this.stationaryIdMap[i][j] = (i - x) * row + (j - y);
-                loadStationaryMatrix(x, y, subMatrix.getStationaryMatrix().get(i - x).get(j - y));
-                loadStreamingMatrix(x, y, subMatrix.getStreamingMatrix().get(i - x));
+                loadStationaryMatrix(i, j, subMatrix.getStationaryMatrix().get(i - x).get(j - y));
+                loadStreamingMatrix(i, j, subMatrix.getStreamingMatrix().get(i - x));
             }
         }
     }
@@ -167,8 +167,8 @@ public class MatrixMapper {
 
     private void loadStationaryMatrix(int x, int y, int[][] stationaryData) {
         SubPeArray subPeArray = peSubArrays.get(x).get(y);
-        stationaryData = transpose(stationaryData);
-        subPeArray.setStationaryLabels(arrayToArrayList(stationaryData));
+        int[][] stationaryDataTransposed = transpose(stationaryData);
+        subPeArray.setStationaryLabels(arrayToArrayList(stationaryDataTransposed));
     }
 
 

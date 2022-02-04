@@ -1,16 +1,18 @@
 package simulator;
 
 import pe.SubPeArray;
+import pe.elements.PSBuffer;
+import pe.elements.PeColumn;
 import simulator.elements.MatrixMapper;
 import utils.DataLoader;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * @author 尹硕
  */
-
 public class PeArrayMap {
     private static int SIZE = 32;
     private static int PESUBARRAY_SIZE = 4;
@@ -21,6 +23,9 @@ public class PeArrayMap {
     private HashMap<Integer, Integer> stallCounter = new HashMap<>();
     private MatrixMapper matrixMapper;
     private DataLoader dataLoader;
+    private int actives = 0;
+    private HashSet<Integer> activeIdSet = new HashSet<>();
+    private HashSet<Integer> finished = new HashSet<>();
 
     public PeArrayMap() {
         subPeArrays = new HashMap<>();
@@ -53,6 +58,21 @@ public class PeArrayMap {
         matrixMapper.mapping();
     }
 
+    @Deprecated
+    public void printData(int x, int y) {
+        SubPeArray subPeArray = subPeArrays.get(x).get(y);
+        System.out.println("The Stationary Data: ");
+        ArrayList<ArrayList<Integer>> sta = subPeArray.getStationaryDataList();
+        for (int i = 0; i < sta.size(); i++) {
+            System.out.println(sta.get(i));
+        }
+        System.out.println("The Streaming Data: ");
+        ArrayList<ArrayList<Integer>> str = subPeArray.getStreamingDataList();
+        for (int i = 0; i < str.size(); i++) {
+            System.out.println(str.get(i));
+        }
+    }
+
     private void renewFinish() {
         int[][] idMap = matrixMapper.getIdMap();
         for (int i = 0; i < SIZE; i++) {
@@ -60,6 +80,9 @@ public class PeArrayMap {
                 if (idMap[i][j] == -1) {
                     int id = getRealIndex(i, j);
                     finishMap.put(id, true);
+                } else {
+                    activeIdSet.add(getRealIndex(i, j));
+                    actives++;
                 }
             }
         }
@@ -77,7 +100,7 @@ public class PeArrayMap {
         }
     }
 
-    private void compute(int x, int y) {
+    public void compute(int x, int y) {
         SubPeArray subPeArray = subPeArrays.get(x).get(y);
         subPeArray.compute();
         ArrayList<Boolean> stall = subPeArray.getNeedStall();
@@ -89,11 +112,53 @@ public class PeArrayMap {
             }
         }
         stallCounter.put(getRealIndex(x, y), stallCounter.get(getRealIndex(x, y) + flag));
-        if (subPeArray.isFinish()) {
-            System.out.println("Simulator id: " + getRealIndex(x, y) + " finish!!!!!!!!!!");
+        if (subPeArray.isFinish() && !subPeArray.isFINISH()) {
+            int id = getRealIndex(x, y);
+            System.out.println("Simulator id: " + id + " finish!!!!!!!!!!");
+            finished.add(id);
             subPeArray.setFINISH(true);
-            finishMap.put(getRealIndex(x, y), true);
+            finishMap.put(id, true);
         }
+//       debug!!!!!
+//        printSubArrayLog(subPeArray);
+    }
+
+    @Deprecated
+    public void whoHasNotFinished() {
+        HashSet<Integer> result = new HashSet<>();
+        for (Integer key : activeIdSet) {
+            if (!finished.contains(key)) {
+                result.add(key);
+            }
+        }
+        if (result.size() == 0) {
+            System.out.println("we don't have anything left");
+            return;
+        }
+        System.out.println("Shit, we still have ids not finished " + result);
+    }
+
+    @Deprecated
+    private void printSubArrayLog(SubPeArray subPeArray) {
+//        System.out.println();
+        System.out.println("*******************************************");
+        System.out.println("Stall: " + subPeArray.getNeedStall());
+        HashMap<Integer, PeColumn> peColumnHashMap = subPeArray.getPeColumnHashMap();
+        HashMap<Integer, PSBuffer> psBufferHashMap = subPeArray.getPsBufferHashMap();
+        for (int i = 0; i < PESUBARRAY_SIZE; i++) {
+            System.out.println("same cyle fifo " + i + " is " + peColumnHashMap.get(i).getSameCyeleMerger().getFifo());
+        }
+        for (int i = 0; i < PESUBARRAY_SIZE; i++) {
+            System.out.println("PS fifo " + i + " is " + psBufferHashMap.get(i).getFifo());
+        }
+
+        for (int i = 0; i < PESUBARRAY_SIZE; i++) {
+            System.out.println("PS buffer " + i + " is " + psBufferHashMap.get(i).getBuffer());
+        }
+        System.out.println("total fifo is " + subPeArray.getFifo());
+        System.out.println("Is finish ? " + ((subPeArray.isFINISH()) ? "Yes!!!!!!!!!!!!" : "No"));
+        System.out.println("********************************************");
+        System.out.println();
     }
 
     public boolean isFinish() {
