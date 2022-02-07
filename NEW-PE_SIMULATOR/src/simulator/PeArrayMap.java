@@ -5,6 +5,7 @@ import pe.elements.PSBuffer;
 import pe.elements.PeColumn;
 import simulator.elements.MatrixMapper;
 import utils.DataLoader;
+import utils.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -45,9 +46,16 @@ public class PeArrayMap {
         matrixMapper.setPeSubArrays(subPeArrays);
     }
 
-    public void readAndMap() throws Exception {
-        HashMap<Integer, HashMap<Integer, int[][]>> stationaryMatrixMap = dataLoader.readSTPUStationaryData();
-        HashMap<Integer, int[][]> streamingMatrixMap = dataLoader.readSTPUStreamingData();
+    public void readAndMap(Type type) throws Exception {
+        HashMap<Integer, HashMap<Integer, int[][]>> stationaryMatrixMap;
+        HashMap<Integer, int[][]> streamingMatrixMap;
+        if (type == Type.STPU) {
+            stationaryMatrixMap = dataLoader.readSTPUStationaryData();
+            streamingMatrixMap = dataLoader.readSTPUStreamingData();
+        } else {
+            stationaryMatrixMap = dataLoader.readProposedStationaryData();
+            streamingMatrixMap = dataLoader.readProposedStreamingData();
+        }
         mapPeArrays(stationaryMatrixMap, streamingMatrixMap);
         renewFinish();
     }
