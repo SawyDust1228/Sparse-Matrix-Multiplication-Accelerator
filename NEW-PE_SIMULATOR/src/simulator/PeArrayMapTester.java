@@ -12,12 +12,13 @@ public class PeArrayMapTester {
         Type type = Type.PROPOSED;
         peArrayMap.readAndMap(type);
 //        peArrayMap.printData(20, 20);
-        for (int cycle = 0; cycle < 100; cycle++) {
+        for (int cycle = 0; cycle < 1000; cycle++) {
             if (peArrayMap.isFinish()) {
                 System.out.println("Simulation finish!!!!!!!!!!");
+                peArrayMap.printLog();
                 break;
             }
-            peArrayMap.compute();
+            peArrayMap.run();
         }
         peArrayMap.whoHasNotFinished();
     }

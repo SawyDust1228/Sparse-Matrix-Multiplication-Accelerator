@@ -113,10 +113,29 @@ public class SubPeArray {
         }
     }
 
+    public ArrayList<LabelTuple> drainData() throws Exception {
+        ArrayList<LabelTuple> result = new ArrayList<>();
+        if (!fifo.isEmpty()) {
+            result.add(fifo.poll());
+        }
+        for (Integer key : psBufferHashMap.keySet()) {
+            LabelTuple labelTuple = psBufferHashMap.get(key).drainBufferData();
+            if (labelTuple != null) {
+                result.add(labelTuple);
+            }
+        }
+        return result;
+    }
+
     public void compute() {
         if (FINISH) {
             return;
         }
+
+        for (Integer key : psBufferHashMap.keySet()) {
+            psBufferHashMap.get(key).addTime();
+        }
+
         stallFlag = false;
         Arrays.fill(needStall, false);
         for (int i = 0; i < size; i++) {
@@ -196,6 +215,9 @@ public class SubPeArray {
         for (int i = 0; i < size; i++) {
             peColumnHashMap.put(i, new PeColumn(i, size));
             psBufferHashMap.put(i, new PSBuffer(i, size));
+        }
+        for (Integer key : psBufferHashMap.keySet()) {
+            psBufferHashMap.get(key).setSameCycleMergerFifo(peColumnHashMap.get(key).getSameCyeleMerger().getFifo());
         }
     }
 

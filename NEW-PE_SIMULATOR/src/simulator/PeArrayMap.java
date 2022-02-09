@@ -1,5 +1,7 @@
 package simulator;
 
+import noc.RouterMap;
+import noc.Sram;
 import pe.SubPeArray;
 import pe.elements.PSBuffer;
 import pe.elements.PeColumn;
@@ -17,6 +19,7 @@ import java.util.HashSet;
 public class PeArrayMap {
     private static int SIZE = 32;
     private static int PESUBARRAY_SIZE = 4;
+    private static int WIRES = 4;
     private static int COUNTER = 1;
     private static String PATH = "packing-algorithm/data";
     private HashMap<Integer, HashMap<Integer, SubPeArray>> subPeArrays;
@@ -27,12 +30,15 @@ public class PeArrayMap {
     private int actives = 0;
     private HashSet<Integer> activeIdSet = new HashSet<>();
     private HashSet<Integer> finished = new HashSet<>();
+    private RouterMap routerMap;
+    private Sram sram;
 
     public PeArrayMap() {
         subPeArrays = new HashMap<>();
         finishMap = new HashMap<>();
         matrixMapper = new MatrixMapper(PESUBARRAY_SIZE, SIZE);
         dataLoader = new DataLoader(PATH, SIZE);
+        sram = new Sram();
         for (int i = 0; i < SIZE; i++) {
             subPeArrays.put(i, new HashMap<>());
             for (int j = 0; j < SIZE; j++) {
@@ -44,6 +50,7 @@ public class PeArrayMap {
             }
         }
         matrixMapper.setPeSubArrays(subPeArrays);
+        routerMap = new RouterMap(SIZE, PESUBARRAY_SIZE, WIRES, subPeArrays, sram);
     }
 
     public void readAndMap(Type type) throws Exception {
@@ -100,7 +107,19 @@ public class PeArrayMap {
         return x * SIZE + y;
     }
 
-    public void compute() {
+
+    public void run() throws Exception {
+        routerMap.horizontalMovement();
+        compute();
+    }
+
+    public void printLog() {
+        System.out.println("SRAM size: " + sram.getSet().size());
+        System.out.println("We have merged " + sram.getCount() + " data in SRAM");
+        System.out.println("Stall log: " + stallCounter);
+    }
+
+    private void compute() {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 compute(i, j);
@@ -176,6 +195,7 @@ public class PeArrayMap {
                 return false;
             }
         }
+        finish = finish && routerMap.isFinish();
         return finish;
     }
 

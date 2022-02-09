@@ -8,6 +8,7 @@ public class LabelTuple implements Comparable<LabelTuple> {
     private int streamingLabel;
     private int stationaryLabel;
     private int drainID = -1;
+    private int time = 0;
 
     public LabelTuple(int stationaryLabel, int streamingLabel) {
         this.stationaryLabel = stationaryLabel;
@@ -76,5 +77,16 @@ public class LabelTuple implements Comparable<LabelTuple> {
         return "(" + stationaryLabel + "," + streamingLabel + ")";
     }
 
+    @Deprecated
+    public void addTime() {
+        time += 1;
+    }
 
+    public void renewTime() {
+        time = 0;
+    }
+
+    public int getTime() {
+        return time;
+    }
 }
