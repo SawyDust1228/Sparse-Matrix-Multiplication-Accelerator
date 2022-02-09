@@ -11,6 +11,7 @@ public class PSBuffer extends Buffer {
     private int id;
     private int size;
     private Queue<LabelTuple> sameCycleMergerFifo;
+    private int count = 0;
 
     public PSBuffer(int id, int size) {
         super(id, size);
@@ -24,9 +25,14 @@ public class PSBuffer extends Buffer {
 
     public void compute() {
         LabelTuple labelTuple = super.getFifo().poll();
-        if (labelTuple != null && !containThisLabel(labelTuple)) {
-            labelTuple.renewTime();
-            super.getBuffer().add(labelTuple);
+        if (labelTuple != null) {
+            if (!containThisLabel(labelTuple)) {
+                labelTuple.renewTime();
+                super.getBuffer().add(labelTuple);
+            } else {
+                count++;
+            }
+
         }
     }
 
@@ -81,5 +87,9 @@ public class PSBuffer extends Buffer {
 
     public void setSameCycleMergerFifo(Queue<LabelTuple> fifo) {
         this.sameCycleMergerFifo = fifo;
+    }
+
+    public int getCount() {
+        return count;
     }
 }

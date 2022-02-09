@@ -116,6 +116,14 @@ public class PeArrayMap {
     public void printLog() {
         System.out.println("SRAM size: " + sram.getSet().size());
         System.out.println("We have merged " + sram.getCount() + " data in SRAM");
+        int result = 0;
+        for (Integer row : subPeArrays.keySet()) {
+            for (Integer column : subPeArrays.get(row).keySet()) {
+                SubPeArray sub = subPeArrays.get(row).get(column);
+                result += sub.getNumofMerge();
+            }
+        }
+        System.out.println("Merge in SubPeArray: " + result);
         System.out.println("Stall log: " + stallCounter);
     }
 

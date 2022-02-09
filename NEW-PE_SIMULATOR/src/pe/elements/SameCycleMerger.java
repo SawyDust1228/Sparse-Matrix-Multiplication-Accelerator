@@ -13,16 +13,21 @@ public class SameCycleMerger {
     private int size;
     private Queue<LabelTuple> fifo = new LinkedList<>();
     private boolean needStall = false;
+    private int count = 0;
 
     public SameCycleMerger(int size) {
         // we can change fifo size here
-        this.size = 2 * size;
+//        this.size = 2 * size;
+        this.size = size;
     }
 
     private ArrayList<LabelTuple> merge(ArrayList<LabelTuple> labelTuples) {
         HashSet<LabelTuple> set = new HashSet<>();
         for (LabelTuple item : labelTuples) {
             if (item.isValid()) {
+                if (set.contains(item)) {
+                    count++;
+                }
                 set.add(item);
             }
         }
@@ -60,5 +65,7 @@ public class SameCycleMerger {
         return needStall;
     }
 
-
+    public int getCount() {
+        return count;
+    }
 }

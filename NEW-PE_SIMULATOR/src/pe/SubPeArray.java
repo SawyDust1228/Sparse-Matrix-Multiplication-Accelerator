@@ -208,7 +208,8 @@ public class SubPeArray {
         }
         boolean drainFlag = !getFifo().isEmpty();
 
-        return (result && !flag && !drainFlag && finishStream()) || (result && (flag || drainFlag) && finishStream());
+//        return (result && !flag && !drainFlag && finishStream()) || (result && (flag || drainFlag) && finishStream());
+        return (result && !flag && !drainFlag && finishStream());
     }
 
     private void build() {
@@ -270,5 +271,14 @@ public class SubPeArray {
 
     public ArrayList<ArrayList<Integer>> getStreamingDataList() {
         return streamingDataList;
+    }
+
+    public int getNumofMerge() {
+        int result = 0;
+        for (Integer key : psBufferHashMap.keySet()) {
+            result += psBufferHashMap.get(key).getCount();
+            result += peColumnHashMap.get(key).getSameCyeleMerger().getCount();
+        }
+        return result;
     }
 }

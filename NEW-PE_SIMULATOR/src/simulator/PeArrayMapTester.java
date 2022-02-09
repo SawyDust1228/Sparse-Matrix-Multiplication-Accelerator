@@ -9,7 +9,7 @@ public class PeArrayMapTester {
 
     public static void main(String[] args) throws Exception {
         PeArrayMap peArrayMap = new PeArrayMap();
-        Type type = Type.PROPOSED;
+        Type type = Type.STPU;
         peArrayMap.readAndMap(type);
 //        peArrayMap.printData(20, 20);
         for (int cycle = 0; cycle < 1000; cycle++) {

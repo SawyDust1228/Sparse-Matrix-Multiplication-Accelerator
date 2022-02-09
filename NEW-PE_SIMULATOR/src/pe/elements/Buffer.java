@@ -23,7 +23,7 @@ public abstract class Buffer {
 
     public Buffer(int id, int size) {
         this.id = id;
-        this.size = size;
+        this.size = 2 * size;
         buffer = new ArrayList<>();
         fifo = new LinkedList<>();
     }
