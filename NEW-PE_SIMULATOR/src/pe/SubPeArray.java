@@ -1,6 +1,7 @@
 package pe;
 
 import pe.elements.LabelTuple;
+import pe.elements.LimitedQueue;
 import pe.elements.PSBuffer;
 import pe.elements.PeColumn;
 
@@ -118,8 +119,17 @@ public class SubPeArray {
         if (!fifo.isEmpty()) {
             result.add(fifo.poll());
         }
+        LabelTuple labelTuple = null;
         for (Integer key : psBufferHashMap.keySet()) {
-            LabelTuple labelTuple = psBufferHashMap.get(key).drainBufferData();
+            if (psBufferHashMap.get(key).isFull()) {
+                labelTuple = psBufferHashMap.get(key).drainBufferData();
+            } else {
+                if (psBufferHashMap.get(key).getFifo().isEmpty() && peColumnHashMap.get(key).getSameCyeleMerger().isEmpty() && finishStream()) {
+                    if (!psBufferHashMap.get(key).getBuffer().isEmpty()) {
+                        labelTuple = psBufferHashMap.get(key).drainBufferData();
+                    }
+                }
+            }
             if (labelTuple != null) {
                 result.add(labelTuple);
             }
@@ -217,9 +227,6 @@ public class SubPeArray {
             peColumnHashMap.put(i, new PeColumn(i, size));
             psBufferHashMap.put(i, new PSBuffer(i, size));
         }
-        for (Integer key : psBufferHashMap.keySet()) {
-            psBufferHashMap.get(key).setSameCycleMergerFifo(peColumnHashMap.get(key).getSameCyeleMerger().getFifo());
-        }
     }
 
     public HashMap<Integer, PeColumn> getPeColumnHashMap() {
@@ -273,11 +280,19 @@ public class SubPeArray {
         return streamingDataList;
     }
 
-    public int getNumofMerge() {
+    public int getSameCycleMerge() {
+        int result = 0;
+        for (Integer key : psBufferHashMap.keySet()) {
+//            result += psBufferHashMap.get(key).getCount();
+            result += peColumnHashMap.get(key).getSameCyeleMerger().getCount();
+        }
+        return result;
+    }
+
+    public int getPsBufferMerge() {
         int result = 0;
         for (Integer key : psBufferHashMap.keySet()) {
             result += psBufferHashMap.get(key).getCount();
-            result += peColumnHashMap.get(key).getSameCyeleMerger().getCount();
         }
         return result;
     }

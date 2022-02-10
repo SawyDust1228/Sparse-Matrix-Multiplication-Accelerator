@@ -9,6 +9,7 @@ import simulator.elements.MatrixMapper;
 import utils.DataLoader;
 import utils.Type;
 
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -114,20 +115,29 @@ public class PeArrayMap {
     }
 
     public void printLog() {
-        System.out.println("SRAM size: " + sram.getSet().size());
+        System.out.println("Total data in SRAM: " + sram.getSet().size());
         System.out.println("We have merged " + sram.getCount() + " data in SRAM");
-        int result = 0;
+        int numOfPsBuffer = 0;
         for (Integer row : subPeArrays.keySet()) {
             for (Integer column : subPeArrays.get(row).keySet()) {
                 SubPeArray sub = subPeArrays.get(row).get(column);
-                result += sub.getNumofMerge();
+                numOfPsBuffer += sub.getPsBufferMerge();
             }
         }
-        System.out.println("Merge in SubPeArray: " + result);
+
+        int numOfSameCycleMerger = 0;
+        for (Integer row : subPeArrays.keySet()) {
+            for (Integer column : subPeArrays.get(row).keySet()) {
+                SubPeArray sub = subPeArrays.get(row).get(column);
+                numOfSameCycleMerger += sub.getSameCycleMerge();
+            }
+        }
+        System.out.println("Merge in SameCycleMerger: " + numOfSameCycleMerger);
+        System.out.println("Merge in PsBuffer: " + numOfPsBuffer);
         System.out.println("Stall log: " + stallCounter);
     }
 
-    private void compute() {
+    public void compute() {
         for (int i = 0; i < SIZE; i++) {
             for (int j = 0; j < SIZE; j++) {
                 compute(i, j);

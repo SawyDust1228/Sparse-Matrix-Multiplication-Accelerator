@@ -3,6 +3,7 @@ package utils;
 import pe.elements.LabelTuple;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -12,13 +13,14 @@ import java.util.TreeSet;
 
 public class Answer {
 
-    private TreeSet<LabelTuple> answer = new TreeSet<>();
+    private HashSet<LabelTuple> answer = new HashSet<>();
+    private int count = 0;
 
     public Answer() {
 
     }
 
-    public TreeSet<LabelTuple> getAnswer() {
+    public HashSet<LabelTuple> getAnswer() {
         return answer;
     }
 
@@ -27,7 +29,15 @@ public class Answer {
         ArrayList<ArrayList<Integer>> streaming = arrayToArrayList(streamingLabel);
         for (ArrayList<Integer> stationaryVector : stationary) {
             for (ArrayList<Integer> streamingVector : streaming) {
-                answer.addAll(compute(stationaryVector, streamingVector));
+                ArrayList<LabelTuple> result = compute(stationaryVector, streamingVector);
+                for (LabelTuple item : result) {
+                    if (answer.contains(item)) {
+                        count++;
+                        answer.add(item);
+                    } else {
+                        answer.add(item);
+                    }
+                }
             }
         }
 
@@ -84,5 +94,7 @@ public class Answer {
         return true;
     }
 
-
+    public int getCount() {
+        return count;
+    }
 }

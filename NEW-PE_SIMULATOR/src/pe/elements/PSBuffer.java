@@ -1,7 +1,7 @@
 package pe.elements;
 
-import utils.MatrixReader;
-
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.Queue;
 
 /**
@@ -10,11 +10,10 @@ import java.util.Queue;
 public class PSBuffer extends Buffer {
     private int id;
     private int size;
-    private Queue<LabelTuple> sameCycleMergerFifo;
     private int count = 0;
 
     public PSBuffer(int id, int size) {
-        super(id, size);
+        super(id, 2 * size);
         this.id = id;
         this.size = size;
     }
@@ -30,6 +29,11 @@ public class PSBuffer extends Buffer {
                 labelTuple.renewTime();
                 super.getBuffer().add(labelTuple);
             } else {
+                for (LabelTuple item : super.getBuffer()) {
+                    if (item.equals(labelTuple)) {
+                        item.renewTime();
+                    }
+                }
                 count++;
             }
 
@@ -51,45 +55,25 @@ public class PSBuffer extends Buffer {
     }
 
     public LabelTuple drainBufferData() throws Exception {
-        if (super.isFull()) {
-            LabelTuple labelTuple = null;
-            int max = Integer.MIN_VALUE;
-            for (LabelTuple item : super.getBuffer()) {
-                if (item.getTime() > max) {
-                    labelTuple = item;
-                }
-            }
-            if (labelTuple == null) {
-                throw new Exception("PS Buffer Exception");
-            }
-            super.getBuffer().remove(labelTuple);
-            return labelTuple;
-        } else {
-            if (super.getFifo().isEmpty() && sameCycleMergerFifo.isEmpty()) {
-                if (!super.getBuffer().isEmpty()) {
-                    LabelTuple labelTuple = null;
-                    int max = Integer.MIN_VALUE;
-                    for (LabelTuple item : super.getBuffer()) {
-                        if (item.getTime() > max) {
-                            labelTuple = item;
-                        }
-                    }
-                    if (labelTuple == null) {
-                        throw new Exception("PS Buffer Exception");
-                    }
-                    super.getBuffer().remove(labelTuple);
-                    return labelTuple;
-                }
+        LabelTuple labelTuple = null;
+        int max = Integer.MIN_VALUE;
+        for (LabelTuple item : super.getBuffer()) {
+            if (item.getTime() > max) {
+                max = item.getTime();
+                labelTuple = item;
             }
         }
-        return null;
+        if (labelTuple == null) {
+            throw new Exception("PS Buffer Exception");
+        }
+        super.getBuffer().remove(labelTuple);
+        return labelTuple;
     }
 
-    public void setSameCycleMergerFifo(Queue<LabelTuple> fifo) {
-        this.sameCycleMergerFifo = fifo;
-    }
 
     public int getCount() {
         return count;
     }
+
+
 }

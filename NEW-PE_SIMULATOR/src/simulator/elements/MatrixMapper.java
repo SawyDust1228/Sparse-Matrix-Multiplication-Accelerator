@@ -1,6 +1,7 @@
 package simulator.elements;
 
 import pe.SubPeArray;
+import utils.Answer;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -15,6 +16,7 @@ public class MatrixMapper {
     private static int[][] DIRECTION = {{1, 0}, {0, 1}};
     private HashMap<Integer, HashMap<Integer, SubPeArray>> peSubArrays;
     private HashMap<Integer, SubMatrix> subMatrixMap = new HashMap<>();
+    private HashMap<Integer, HashMap<Integer, Answer>> answers = new HashMap<>();
     private int PE_SIZE;
     private int SIZE;
     // sumMatrix id and subPeArrays
@@ -34,6 +36,13 @@ public class MatrixMapper {
             Arrays.fill(idMap[i], -1);
             Arrays.fill(streamIdMap[i], -1);
             Arrays.fill(stationaryIdMap[i], -1);
+        }
+        for (int i = 0; i < SIZE; i++) {
+            HashMap<Integer, Answer> hashMap = new HashMap<>();
+            for (int j = 0; j < SIZE; j++) {
+                hashMap.put(j, new Answer());
+            }
+            answers.put(i, hashMap);
         }
     }
 
@@ -106,6 +115,8 @@ public class MatrixMapper {
                 this.stationaryIdMap[i][j] = (i - x) * row + (j - y);
                 loadStationaryMatrix(i, j, subMatrix.getStationaryMatrix().get(i - x).get(j - y));
                 loadStreamingMatrix(i, j, subMatrix.getStreamingMatrix().get(i - x));
+                this.answers.get(i).get(j).addLabels(subMatrix.getStationaryMatrix().get(i - x).get(j - y)
+                        , subMatrix.getStreamingMatrix().get(i - x));
             }
         }
     }

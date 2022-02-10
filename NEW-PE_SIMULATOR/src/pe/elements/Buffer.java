@@ -23,13 +23,13 @@ public abstract class Buffer {
 
     public Buffer(int id, int size) {
         this.id = id;
-        this.size = 2 * size;
+        this.size = size;
         buffer = new ArrayList<>();
         fifo = new LinkedList<>();
     }
 
     public boolean isFull() {
-        return buffer.size() == this.size;
+        return buffer.size() >= this.size;
     }
 
     public boolean containThisLabel(LabelTuple labelTuple) {
